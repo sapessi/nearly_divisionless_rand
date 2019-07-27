@@ -22,6 +22,7 @@ pub fn ndl_rand(max: u64) -> Result<u64, RandError> {
     if max == 0 {
         return Err(RandError {});
     }
+    // convert to u128 now since we'll use the value multiple times afterwards
     let max_128 = max as u128;
     let mut rand_seed = thread_rng().gen::<u64>();
     let mut rand_dividend = rand_seed as u128 * max_128;
@@ -43,8 +44,8 @@ pub fn ndl_rand(max: u64) -> Result<u64, RandError> {
         // rust only lets me apply the unary minus to signed types.
         // The unary_minus_same_as_c test validates that this behaves
         // in the same way as the unary minus on an unsigned C type.
-        
         let t = (-(max as i64) % (max as i64)) as u64;
+
         while rand_dividend_u64 < t {
             rand_seed = thread_rng().gen::<u64>();
             rand_dividend = rand_seed as u128 * max_128;
@@ -130,16 +131,18 @@ mod tests {
     }
 
     #[bench]
-    fn gen_1000_randoms_to_1000(b: &mut test::Bencher) {
+    fn gen_randoms_to_1000(b: &mut test::Bencher) {
         b.iter(|| {
-            ndl_rand(1000);
+            let mut rands: Vec<u64> = vec![];
+            rands.push(ndl_rand(1000).unwrap());
         })
     }
 
     #[bench]
-    fn rand_gen_1000_randoms_to_1000(b: &mut test::Bencher) {
+    fn rand_gen_randoms_to_1000(b: &mut test::Bencher) {
         b.iter(|| {
-            thread_rng().gen_range(0, 1000);
+            let mut rands: Vec<u64> = vec![];
+            rands.push(thread_rng().gen_range(0, 1000));
         })
     }
 }
