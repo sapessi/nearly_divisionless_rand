@@ -116,7 +116,7 @@ mod tests {
         println!("critical value: {}", rand_stats.critical_value);
         println!("confidence: {}", rand_stats.confidence);
 
-        assert!(rand_stats.statistic > stats.statistic || stats.statistic + 0.005 < rand_stats.statistic);
+        assert!(rand_stats.statistic > stats.statistic || stats.statistic - 0.005 < rand_stats.statistic);
     }
 
     #[test]
@@ -158,7 +158,7 @@ mod tests {
     }
 
     #[bench]
-    fn gen_randoms_to_1000(b: &mut test::Bencher) {
+    fn gen_ndl_randoms_to_1000(b: &mut test::Bencher) {
         b.iter(|| {
             let mut rands: Vec<u64> = vec![];
             rands.push(ndl_rand(1000).unwrap());
@@ -166,7 +166,7 @@ mod tests {
     }
 
     #[bench]
-    fn rand_gen_randoms_to_1000(b: &mut test::Bencher) {
+    fn gen_rand_randoms_to_1000(b: &mut test::Bencher) {
         b.iter(|| {
             let mut rands: Vec<u64> = vec![];
             rands.push(thread_rng().gen_range(0, 1000));
