@@ -17,13 +17,15 @@ impl std::error::Error for RandError {}
 
 /// Genrates a random number between 0 and the given `max` paramter.
 /// Returns an error if the `max` parameter is 0.
+#[inline]
 pub fn ndl_rand(max: u64) -> Result<u64, RandError> {
     if max == 0 {
         return Err(RandError {});
     }
-
+    let max_128 = max as u128;
     let mut rand_seed = thread_rng().gen::<u64>();
-    let mut rand_dividend = (rand_seed as u128) * (max as u128);
+    let mut rand_dividend = rand_seed as u128 * max_128;
+
     // the cast operations truncates the leading bytes from the u128.
     // the cast_uints_same_as_c test function confirms that the behavior
     // of this operation in rust is the same as in C.
@@ -41,10 +43,11 @@ pub fn ndl_rand(max: u64) -> Result<u64, RandError> {
         // rust only lets me apply the unary minus to signed types.
         // The unary_minus_same_as_c test validates that this behaves
         // in the same way as the unary minus on an unsigned C type.
-        let t = -(max as i64) % (max as i64);
-        while rand_dividend_u64 < t as u64 {
+        
+        let t = (-(max as i64) % (max as i64)) as u64;
+        while rand_dividend_u64 < t {
             rand_seed = thread_rng().gen::<u64>();
-            rand_dividend = (rand_seed as u128) * (max as u128);
+            rand_dividend = rand_seed as u128 * max_128;
             rand_dividend_u64 = rand_dividend as u64;
         }
     }
