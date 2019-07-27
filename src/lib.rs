@@ -93,6 +93,33 @@ mod tests {
     }
 
     #[test]
+    fn comparison_kolmogorov_smirnov_test() {
+        let mut rands: Vec<u64> = Vec::with_capacity(ITERATIONS);
+        let mut rand_rands: Vec<u64> = Vec::with_capacity(ITERATIONS);
+        let mut smooth: Vec<u64> = Vec::with_capacity(ITERATIONS);
+
+        for i in 0..ITERATIONS {
+            rands.push(ndl_rand(MAX_RANGE).unwrap());
+            rand_rands.push(thread_rng().gen_range(0, MAX_RANGE));
+            smooth.push(i as u64);
+        }
+        let stats = kolmogorov_smirnov::test(rands.as_slice(), smooth.as_slice(), 0.99999999999999);
+        let rand_stats = kolmogorov_smirnov::test(rand_rands.as_slice(), smooth.as_slice(), 0.99999999999999);
+        println!("NDL_RAND:");
+        println!("is_rejected: {}", stats.is_rejected);
+        println!("statistic: {}", stats.statistic);
+        println!("critical value: {}", stats.critical_value);
+        println!("confidence: {}", stats.confidence);
+        println!("\n\nRAND:");
+        println!("is_rejected: {}", rand_stats.is_rejected);
+        println!("statistic: {}", rand_stats.statistic);
+        println!("critical value: {}", rand_stats.critical_value);
+        println!("confidence: {}", rand_stats.confidence);
+
+        assert!(rand_stats.statistic > stats.statistic || stats.statistic + 0.005 < rand_stats.statistic);
+    }
+
+    #[test]
     fn cast_uints_same_as_c() {
         let mut rnd = thread_rng().gen::<u128>();
         let mut attempts_cnt = 0;
