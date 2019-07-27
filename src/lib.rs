@@ -16,8 +16,7 @@ impl std::fmt::Display for RandError {
 impl std::error::Error for RandError {}
 
 /// Genrates a random number between 0 and the given `max` paramter.
-/// Returns an error if the `max` parameter is 0 or we could not reach
-/// a reasonable random number within 10 iterations.
+/// Returns an error if the `max` parameter is 0.
 pub fn ndl_rand(max: u64) -> Result<u64, RandError> {
     if max == 0 {
         return Err(RandError {});
